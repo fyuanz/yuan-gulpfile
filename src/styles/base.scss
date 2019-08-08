@@ -1,0 +1,16 @@
+.content {
+    box-sizing: border-box;
+    width: 750px;
+    height: 200px;
+    font-size: 32px;
+    line-height: 200px;
+    text-align: center;
+    border: 0.01334rem solid salmon;
+}
+textarea{
+    display: block;
+    margin: 20px auto;
+    width: 500px;
+    height: 300px;
+    border-color: cadetblue;
+}

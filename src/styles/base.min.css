@@ -1,0 +1,17 @@
+.content {
+  box-sizing: border-box;
+  width: 100vw;
+  height: 26.66666667vw;
+  font-size: 4.26666667vw;
+  line-height: 26.66666667vw;
+  text-align: center;
+  border: 0.01334rem solid salmon; }
+
+textarea {
+  display: block;
+  margin: 2.66666667vw auto;
+  width: 66.66666667vw;
+  height: 40vw;
+  border-color: cadetblue; }
+
+/*# sourceMappingURL=base.css.map */
