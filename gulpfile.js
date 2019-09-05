@@ -12,9 +12,10 @@ const autoprefixer = require('autoprefixer')
 const sourcemaps = require('gulp-sourcemaps');
 const imagemin = require('gulp-imagemin');
 const cache = require('gulp-cache');
-const browserSync = require('browser-sync').create();
 const postcss = require('gulp-postcss');
 const pxtoviewport = require('postcss-px-to-viewport');
+const browserSync = require('browser-sync').create();
+const proxy = require('http-proxy-middleware');
 
 const sass = require('gulp-sass');
 sass.compiler = require('node-sass');
@@ -61,6 +62,12 @@ const processors = [
     })
 ];
 
+const compatible = {
+    browsers: ['>1%'],
+    cascade: false,
+    remove: false
+}
+
 
 async function clean() {
     const deletedPaths = await del(['assets/**/*', '!assets/images', '!assets/images/**/*']);
@@ -70,6 +77,7 @@ async function clean() {
 function cssTask() {
     return gulp.src(paths.css.src)
         .pipe(postcss(processors))
+        .pipe(postcss([autoprefixer([compatible])]))
         .pipe(rename({
             suffix: '.min'
         }))
@@ -80,6 +88,7 @@ function lessTask() {
     return gulp.src(paths.less.src)
         .pipe(less())
         .pipe(postcss(processors))
+        .pipe(postcss([autoprefixer([compatible])]))
         .pipe(rename({
             suffix: '.min'
         }))
@@ -91,11 +100,11 @@ function sassTask() {
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(postcss(processors))
-        .pipe(postcss([autoprefixer()]))
-        .pipe(sourcemaps.write('.'))
+        .pipe(postcss([autoprefixer([compatible])]))
         .pipe(rename({
             suffix: '.min'
         }))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(paths.sass.dest));
 }
 
@@ -120,11 +129,9 @@ function bulidStyles() {
  * build scripts
  */
 function buildScripts() {
-    return gulp.src(paths.scripts.src, {
-            sourcemaps: true
-        })
+    return gulp.src(paths.scripts.src)
         .pipe(babel())
-        .pipe(uglify())
+        // .pipe(uglify())
         // Most of the time, you don't neet concat
         // .pipe(concat('main.min.js'))
         .pipe(gulp.dest(paths.scripts.build));
@@ -155,11 +162,11 @@ function buildImages() {
             }),
             imagemin.svgo({
                 plugins: [{
-                        removeViewBox: true
-                    },
-                    {
-                        cleanupIDs: false
-                    }
+                    removeViewBox: true
+                },
+                {
+                    cleanupIDs: false
+                }
                 ]
             })
         ])))
@@ -192,6 +199,12 @@ async function gulpServe() {
         server: {
             baseDir: './src',
         },
+        middleware: [
+            proxy('/api', {
+                target: 'http://www.bing.com',
+                changeOrigin: true,
+            })
+        ],
         files: [paths.html.src, paths.css.src, paths.scripts.src, paths.images.src]
     })
 }
